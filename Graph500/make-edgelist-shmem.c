@@ -118,7 +118,8 @@ int main(int argc, char **argv){
     int n_pes = 1;
 
 #ifdef USE_OPENSHMEM
-    start_pes(0);
+    //start_pes(0);
+    shmem_init();
     my_pe = shmem_my_pe();
     n_pes = shmem_n_pes();
 #else
@@ -226,7 +227,12 @@ int main(int argc, char **argv){
     printf("Output file: %s\n", dumpname);
     };
 
-
+#ifdef USE_OPENSHMEM
+    shmem_finalize();
+#else
+    MPI_Finalize();
+#endif
+    
     return EXIT_SUCCESS;
 } /* main */
 

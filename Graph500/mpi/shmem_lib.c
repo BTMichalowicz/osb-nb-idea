@@ -714,8 +714,13 @@ int shmem_int_land_all( int lvalue )
  * each processor receive data from all other processors (including self)
  * ----------------------------------------------------------------------
  */
-void shmem_int_alltoall( int *sendbuf, int *recvbuf )
+void wrap_shmem_int_alltoall( int *sendbuf, int *recvbuf )
 {
+
+
+  size_t len = 1;
+  shmem_int_alltoall(SHMEM_TEAM_WORLD, recvbuf, sendbuf, len);
+  /*
   int *source = 0;
   int *target = 0;
   unsigned int n_pes = (unsigned int) shmem_n_pes();
@@ -724,12 +729,12 @@ void shmem_int_alltoall( int *sendbuf, int *recvbuf )
 
   size_t nbytes = sizeof(int);
   nbytes *=  n_pes;
-  source = (int *) shmalloc( nbytes );
+  source = (int *) shmem_malloc( nbytes );
   assert( source != NULL );
 
   nbytes = sizeof(int);
   nbytes *= n_pes;
-  target = (int *) shmalloc( nbytes );
+  target = (int *) shmem_malloc( nbytes );
   assert( target != NULL );
 
   for(pe=0; pe < n_pes; pe++) {
@@ -751,8 +756,9 @@ void shmem_int_alltoall( int *sendbuf, int *recvbuf )
 
   shmem_barrier_all();
   
-  shfree( source );
-  shfree( target );
+  shmem_free( source );
+  shmem_free( target );
+  */
 
 }
 
@@ -763,18 +769,22 @@ void shmem_int_alltoall( int *sendbuf, int *recvbuf )
  * each processor receive data from all other processors (including self)
  * ----------------------------------------------------------------------
  */
-void shmem_long_alltoall( long *sendbuf, long *recvbuf )
+void wrap_shmem_long_alltoall( long *sendbuf, long *recvbuf )
 {
+
+  size_t len = 1;
+  shmem_long_alltoall(SHMEM_TEAM_WORLD, recvbuf, sendbuf, len);
+  /*
   long *source = 0;
   long *target = 0;
   unsigned int n_pes = (unsigned int) shmem_n_pes();
   unsigned int my_pe = (unsigned int) shmem_my_pe();
   unsigned int pe = 0;
 
-  source = (long *) shmalloc( sizeof(int) * n_pes );
+  source = (long *) shmem_malloc( sizeof(int) * n_pes );
   assert( source != NULL );
 
-  target = (long *) shmalloc( sizeof(int) * n_pes );
+  target = (long *) shmem_malloc( sizeof(int) * n_pes );
   assert( target != NULL );
 
   for(pe=0; pe < n_pes; pe++) {
@@ -796,8 +806,9 @@ void shmem_long_alltoall( long *sendbuf, long *recvbuf )
 
   shmem_barrier_all();
   
-  shfree( source );
-  shfree( target );
+  shmem_free( source );
+  shmem_free( target );
+  */
 
 }
 
@@ -875,7 +886,7 @@ void shmem_mem_alltoallv( void *sendbuf_in,
 
 
 
-  target =  (char *) shmalloc( MIN( nb * n_pes * size_in_bytes,
+  target =  (char *) shmem_malloc( MIN( nb * n_pes * size_in_bytes,
                                     total_recvcounts * size_in_bytes )
                               );
   if (target == NULL) {
@@ -949,7 +960,7 @@ void shmem_mem_alltoallv( void *sendbuf_in,
   }; /* for (itime) */
 
   shmem_barrier_all();
-  shfree( target );
+  shmem_free( target );
 }
 
 unsigned long shmem_ulong_bor_all( unsigned long val_in )

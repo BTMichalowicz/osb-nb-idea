@@ -634,7 +634,7 @@ int main(int argc, char** argv) {
 
   if (IJ != NULL) {
 #ifdef USE_OPENSHMEM
-    shfree( IJ );
+    shmem_free( IJ );
 #else
     free( IJ );
 #endif

@@ -208,7 +208,7 @@ int read_edgelist( const char *filename,
   long nitems = (long) ( (gnedge + (n_pes-1))/(n_pes) );
   size_t nbytes = nitems * sizeof( *IJ );
 #ifdef USE_OPENSHMEM
-  IJ = (struct packed_edge *) shmalloc( nbytes );
+  IJ = (struct packed_edge *) shmem_malloc( nbytes );
 #else
   IJ = malloc( nbytes );
 #endif
