@@ -110,7 +110,7 @@ static void get_statistics(const double x[], int n, double r[s_LAST]) {
 
 int main(int argc, char** argv) {
 #ifdef USE_OPENSHMEM
-  start_pes(0);
+ shmem_init(); 
 
 #else
   MPI_Init(&argc, &argv);
@@ -639,6 +639,7 @@ int main(int argc, char** argv) {
   cleanup_globals();
 #ifdef USE_OPENSHMEM
   shmem_barrier_all();
+  shmem_finalize();
 #else
   MPI_Finalize();
 #endif

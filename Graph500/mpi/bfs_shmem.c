@@ -41,8 +41,6 @@
 #ifndef BOR
 #define BOR(x,y)  (((x)) | ((y)))
 #endif
-
-
 #else
 #include <mpi.h>
 
@@ -151,7 +149,7 @@ void run_bfs(int64_t root, int64_t* pred) {
 
     /* Start one-sided operations for this level. */
 #ifdef USE_OPENSHMEM
-    shmem_quiet();
+    //shmem_quiet();
     shmem_barrier_all();
 #else
     MPI_Win_fence(MPI_MODE_NOPRECEDE, pred2_win);

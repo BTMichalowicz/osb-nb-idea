@@ -173,13 +173,6 @@ void shmem_ulong_bor(unsigned long *gvar, unsigned long value, int pe)
 }
 
 
-
-
-
-
-
-
-
 void
 shmem_int_min (int *gvar, int value, int pe)
 {
