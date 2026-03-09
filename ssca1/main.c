@@ -142,7 +142,7 @@ int main(int argc, char **argv)
   printf("Running with MPI-3, world size is %d\n", num_nodes);
 #else
 #ifdef USE_SHMEM
-  start_pes(0);
+  shmem_init();
   num_nodes=shmem_n_pes();
   rank=shmem_my_pe();
   if(rank == 0)
@@ -193,7 +193,7 @@ int main(int argc, char **argv)
 
     printf("Using seed %u\n", random_seed);
 
-    printf("\nScalable Data Generator - genScalData() beginning execution...\n");
+    printf("\nScalable Data Generator - genScalData() beginning execution...\n"); 
   }
 
   /*
@@ -206,7 +206,22 @@ int main(int argc, char **argv)
 
   gettimeofday(&start_time, NULL);
 
+  if (rank == 0){
+      fprintf(stdout, "gen_sim_matrix param %d %d %d %d %d %d\n",
+              global_parameters.SIM_EXACT, global_parameters.SIM_SIMILAR, global_parameters.SIM_DISSIMILAR, global_parameters.GAP_START, global_parameters.GAP_EXTEND, global_parameters.MATCH_LIMIT);
+  }
+
   sim_matrix = gen_sim_matrix(global_parameters.SIM_EXACT, global_parameters.SIM_SIMILAR, global_parameters.SIM_DISSIMILAR, global_parameters.GAP_START, global_parameters.GAP_EXTEND, global_parameters.MATCH_LIMIT);
+
+
+  if (rank == 0){
+      fprintf(stdout, "gen_scal_data param %p %f %f %d\n",
+              sim_matrix, 
+              global_parameters.MAIN_SEQ_LENGTH,
+              global_parameters.MATCH_SEQ_LENGTH,
+              global_parameters.CONSTANT_RNG);
+  }
+
 
   seq_data = gen_scal_data(sim_matrix, global_parameters.MAIN_SEQ_LENGTH, global_parameters.MATCH_SEQ_LENGTH, global_parameters.CONSTANT_RNG);
 

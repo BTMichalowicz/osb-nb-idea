@@ -41,6 +41,11 @@ extern MPI_Request request;
 #endif
 #endif
 
+#ifdef SECURE
+#include <shmemx.h>
+#endif /* ifdef SECURE */
+
+#ifndef SECURE
 #ifdef USE_MPI3
 #define SHORT_GET(target, source, num_elems, rank)	MPI_Get(target, num_elems, MPI_SHORT, rank, (void *)source - window_base, num_elems, MPI_SHORT, window); QUIET()
 #else
@@ -71,6 +76,48 @@ extern MPI_Request request;
 #define SHORT_PUT(target, source, num_elems, pe)	shmem_short_put(target, source, num_elems, pe)
 #endif
 
+#else /* ifdef SECURE */
+
+
+#ifdef USE_MPI3
+#define SHORT_GET(target, source, num_elems, rank)	MPI_Get(target, num_elems, MPI_SHORT, rank, (void *)source - window_base, num_elems, MPI_SHORT, window); QUIET()
+#else
+#define SHORT_GET(target, source, num_elems, pe)	shmemx_secure_get(SHMEM_DEFAULT_CTX, target, source, num_elems*sizeof(short), pe)
+#endif
+
+#ifdef USE_MPI3
+#define SHORT_GET_NB(target, source, num_elems, rank)	MPI_Get(target, num_elems, MPI_SHORT, rank, (void *)source - window_base, num_elems, MPI_SHORT, window)
+#else
+#define SHORT_GET_NB(target, source, num_elems, pe)	shmemx_secure_get_nbi(SHMEM_DEFAULT_CTX, target, source, num_elems*sizeof(short), pe)
+#endif
+
+#ifdef USE_MPI3
+#define LONG_GET(target, source, num_elems, rank)	MPI_Get(target, num_elems, MPI_LONG, rank, (void *)source - window_base, num_elems, MPI_LONG, window); QUIET()
+#else
+#define LONG_GET(target, source, num_elems, pe)		shmemx_secure_get(SHMEM_DEFAULT_CTX, target, source, num_elems*sizeof(long), pe)
+#endif
+
+#ifdef USE_MPI3
+#define GETMEM(target, source, length, rank)		MPI_Get(target, length, MPI_BYTE, rank, (void *)source - window_base, length, MPI_BYTE, window); QUIET()
+#else
+#define GETMEM(target, source, length, pe)		shmemx_secure_get(SHMEM_DEFAULT_CTX, target, source, length, pe)
+#endif
+
+#ifdef USE_MPI3
+#define SHORT_PUT(target, source, num_elems, rank)	MPI_Put(source, num_elems, MPI_SHORT, rank, (void *)target - window_base, num_elems, MPI_SHORT, window); QUIET()
+#else
+#define SHORT_PUT(target, source, num_elems, pe)	shmemx_secure_put(SHMEM_DEFAULT_CTX, target, source, num_elems*sizeof(short), pe)
+#endif
+
+#ifdef USE_MPI3
+#define QUIET()		MPI_Win_flush_all(window)
+#else
+#define QUIET()		shmemx_secure_quiet()
+#endif
+
+
+#endif /* ifdef SECURE */
+
 #ifdef USE_MPI3
 #define QUIET()		MPI_Win_flush_all(window)
 #else
@@ -96,7 +143,7 @@ static inline int malloc_all(size_t size, void **address) {
 }
 #else
 static inline int malloc_all(size_t size, void **address) {
-  *address = shmalloc(size);
+  *address = shmem_malloc(size);
   if (*address == NULL)
     return -1;
   else
@@ -107,7 +154,7 @@ static inline int malloc_all(size_t size, void **address) {
 #ifdef USE_MPI3
 #define FREE_ALL(address) /* unable to free memory like this */
 #else
-#define FREE_ALL(address) shfree(address)
+#define FREE_ALL(address) shmem_free(address)
 #endif
 
 static inline int global_index_to_rank(const seq_t *in, const index_t codon_index){

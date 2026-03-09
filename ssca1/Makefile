@@ -53,13 +53,15 @@ ifeq ($(COMPILER), mpicc)
 	COMMON_CFLAGS=-std=c99 -Wall -pipe -g $(COMM) $(PREFETCH)
 	OPTIMIZED_CFLAGS=-O3 -pipe -frename-registers
 	DEBUG_CFLAGS=-O0 -ggdb -DDEBUG
+	SECURE_FLAGS=-O3 -Wall -pipe -lssl -lcrypto -fopenmp -DESCURE
 endif
 
 ifeq ($(COMPILER), oshcc)
     CC=oshcc
-    COMMON_CFLAGS=-std=c99 -Wall -pipe -g $(COMM) $(PREFETCH)
+    COMMON_CFLAGS=-std=c99 -Wall -pipe -g $(COMM) $(PREFETCH) -Wno-incompatible-pointer-types
     OPTIMIZED_CFLAGS=-O3 -pipe -frename-registers
     DEBUG_CFLAGS=-O0 -ggdb -DDEBUG
+	SECURE_CFLAGS=$(COMMON_CFLAGS) $(OPTIMIZED_CFLAGS) -lssl -lcrypto -DSCURE -Wno-incompatible-pointer-types
 endif
 
 ifndef DEBUG
@@ -72,9 +74,19 @@ else
 	CFLAGS=$(COMMON_CFLAGS) $(OPTIMIZED_CFLAGS)
 endif
 
+ifndef SECURE
+	SECURE=0
+endif
+
+ifneq ($(SECURE), 0)
+	CFLAGS=$(COMMON_CFLAGS) $(SECURE_CFLAGS)
+else
+	CFLAGS=$(COMMON_CFLAGS) $(OPTIMIZED_CFLAGS)
+endif
+
 LD=$(CC)
 
-CPPFLAGS=-I.
+CPPFLAGS=-I. -Wno-incompatible-pointer-types
 LIBS=-lm
 
 COMMON_OBJS=parameters.o gen_sim_matrix.o gen_scal_data.o pairwise_align.o glibc_sort.o scan_backwards.o util.o
