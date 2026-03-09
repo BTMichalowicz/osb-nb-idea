@@ -61,7 +61,7 @@ ifeq ($(COMPILER), oshcc)
     COMMON_CFLAGS=-std=c99 -Wall -pipe -g $(COMM) $(PREFETCH) -Wno-incompatible-pointer-types
     OPTIMIZED_CFLAGS=-O3 -pipe -frename-registers
     DEBUG_CFLAGS=-O0 -ggdb -DDEBUG
-	SECURE_CFLAGS=$(COMMON_CFLAGS) $(OPTIMIZED_CFLAGS) -lssl -lcrypto -DSCURE -Wno-incompatible-pointer-types
+	SECURE_CFLAGS=$(COMMON_CFLAGS) $(OPTIMIZED_CFLAGS) -lssl -lcrypto -DSECURE -Wno-incompatible-pointer-types -Wno-implicit-function-declaration
 endif
 
 ifndef DEBUG

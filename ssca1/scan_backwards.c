@@ -319,7 +319,7 @@ void doScan(good_match_t *A, int *bestR, int minSeparation, int report) {
         A->bestEnds[0][*bestR] = ei;
         A->bestEnds[1][*bestR] = ej;
         A->bestScores[*bestR] = goal;
-        memcpy(&(A->bestSeqs[*bestR]), &test_seq, sizeof(seq_t));
+        memcpy(&(A->bestSeqs[*bestR]), &test_seq, sizeof(seq_data_t));
         (*bestR) = (*bestR)+1;
         goto out; // sucess
       }
