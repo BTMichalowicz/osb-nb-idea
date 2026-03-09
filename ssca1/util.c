@@ -47,7 +47,7 @@ void distribute_rng_seed(unsigned int new_seed){
 //    seed_psync[idx] = _SHMEM_SYNC_VALUE;
 //  }
   shmem_barrier_all();
-  shmem_broadcastmem(SHMEM_TEAM_WORLD, &random_seed, &new_seed, 1, 0);
+  shmem_broadcastmem(SHMEM_TEAM_WORLD, &random_seed, &new_seed, 1*sizeof(int), 0);
 //  shmem_broadcast32(&random_seed,&new_seed,1,0,0,0,num_nodes,seed_psync);
 #endif
 }
