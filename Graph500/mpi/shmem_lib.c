@@ -95,11 +95,11 @@ shmem_long_min (long *gvar, long value, int pe)
   assert( shmem_addr_accessible(gvar,pe) );
 
 
-  lval = shmem_long_fadd( gvar, (long) 0, pe );
+  lval = shmem_long_atomic_fetch_add( gvar, (long) 0, pe );
   if (value < lval) {
     do
     {
-	  cval = shmem_long_cswap (gvar, lval, MIN (lval, value), pe);
+	  cval = shmem_long_atomic_compare_swap (gvar, lval, MIN (lval, value), pe);
 	  is_done = (cval == lval) || (cval <= value);
 	  lval = cval;
     }
@@ -118,11 +118,11 @@ shmem_long_max (long *gvar, long value, int pe)
 
   assert( (0 <= pe) && (pe < shmem_n_pes()) );
 
-  lval = shmem_long_fadd(gvar, (long) 0, pe );
+  lval = shmem_long_atomic_fetch_add(gvar, (long) 0, pe );
   if (value > lval) {
     do
     {
-	  cval = shmem_long_cswap (gvar, lval, MAX (lval, value), pe);
+	  cval = shmem_long_atomic_compare_swap (gvar, lval, MAX (lval, value), pe);
 	  is_done = (cval == lval) || (cval >= value);
 	  lval = cval;
     }
@@ -149,7 +149,7 @@ void shmem_ulong_bor(unsigned long *gvar, unsigned long value, int pe)
   assert( shmem_addr_accessible(gvar,pe) );
 
 
-  lval = shmem_long_fadd( (long *) gvar, (long) 0, pe );
+  lval = shmem_long_atomic_fetch_add( (long *) gvar, (long) 0, pe );
   
   do
     {
@@ -163,7 +163,7 @@ void shmem_ulong_bor(unsigned long *gvar, unsigned long value, int pe)
 
       memcpy( &new_lval, &new_ulval, sizeof(new_lval) );
 
-      cval = shmem_long_cswap ((long *) gvar, lval, new_lval, pe);
+      cval = shmem_long_atomic_compare_swap ((long *) gvar, lval, new_lval, pe);
       is_done = (cval == lval);
       lval = cval;
 
@@ -182,14 +182,14 @@ shmem_int_min (int *gvar, int value, int pe)
 
   assert( (0 <= pe) && (pe < shmem_n_pes()) );
 
-  lval = shmem_int_fadd( gvar, (int) 0, pe );
+  lval = shmem_int_atomic_fetch_add( gvar, (int) 0, pe );
   if (value < lval) {
     do
     {
       is_done = (lval <= value);
       if (!is_done)
 	{
-	  cval = shmem_int_cswap (gvar, lval, MIN (lval, value), pe);
+	  cval = shmem_int_atomic_compare_swap (gvar, lval, MIN (lval, value), pe);
 	  is_done = (cval == lval) || (cval <= value);
 	  lval = cval;
 	}
@@ -208,14 +208,14 @@ shmem_int_max (int *gvar, int value, int pe)
 
   assert( (0 <= pe) && (pe < shmem_n_pes()) );
 
-  lval = shmem_int_fadd( gvar, (int) 0, pe );
+  lval = shmem_int_atomic_fetch_add( gvar, (int) 0, pe );
   if (value > lval) {
     do
     {
       is_done = (lval >= value);
       if (!is_done)
 	{
-	  cval = shmem_int_cswap (gvar, lval, MAX (lval, value), pe);
+	  cval = shmem_int_atomic_compare_swap (gvar, lval, MAX (lval, value), pe);
 	  is_done = (cval == lval) || (cval >= value);
 	  lval = cval;
 	}
@@ -240,12 +240,12 @@ shmem_uint_bor (int *gvar, unsigned int value, int pe)
 
   assert( (0 <= pe) && (pe < shmem_n_pes()) );
 
-  lval = shmem_int_fadd( gvar, (int) 0, pe );
+  lval = shmem_int_atomic_fetch_add( gvar, (int) 0, pe );
   do
     {
       ulval = UINT_BOR(lval, value );
       memcpy( &new_lval, &ulval, sizeof(lval) );
-      cval = shmem_int_cswap (gvar, lval, new_lval, pe);
+      cval = shmem_int_atomic_compare_swap (gvar, lval, new_lval, pe);
       is_done = (cval == lval);
       lval = cval;
 
@@ -265,8 +265,7 @@ long shmem_long_sum_all( long lvalue_in )
   static long gvalue = 0;
   static long lvalue = 0;
 
-  int i = 0;
-//  int PE_start = 0;
+  //  int PE_start = 0;
 //  int logPE_stride = 0;
 //  int PE_size = shmem_n_pes();
   const int nreduce = 1;
@@ -317,8 +316,7 @@ long shmem_long_max_all( long lvalue_in )
   static long gvalue = 0;
   static long lvalue = 0;
 
-  int i = 0;
-//  int PE_start = 0;
+  //  int PE_start = 0;
 //  int logPE_stride = 0;
 //  int PE_size = shmem_n_pes();
   const int nreduce = 1;
@@ -367,32 +365,33 @@ long double shmem_longdouble_max_all( long double lvalue_in )
   static long double gvalue = 0;
   static long double lvalue = 0;
 
-  int i = 0;
-  int PE_start = 0;
-  int logPE_stride = 0;
-  int PE_size = shmem_n_pes();
+  //  int PE_start = 0;
+//  int logPE_stride = 0;
+//  int PE_size = shmem_n_pes();
   const int nreduce = 1;
-  static long double pWrk[2 + 1 + _SHMEM_REDUCE_MIN_WRKDATA_SIZE];
-  const int len_pWrk = sizeof(pWrk)/sizeof(long double);
+//  static long double pWrk[2 + 1 + _SHMEM_REDUCE_MIN_WRKDATA_SIZE];
+//  const int len_pWrk = sizeof(pWrk)/sizeof(long double);
 
-  static long pSync[_SHMEM_REDUCE_SYNC_SIZE];
-  const int len_pSync = sizeof(pSync)/sizeof(long);
+//  static long pSync[_SHMEM_REDUCE_SYNC_SIZE];
+//  const int len_pSync = sizeof(pSync)/sizeof(long);
 
-  for(i=0; i < len_pWrk; i++) {
+/*  for(i=0; i < len_pWrk; i++) {
      pWrk[i] =  (long double) 0;
      };
 
   for(i=0; i < len_pSync; i++) {
      pSync[i] = _SHMEM_SYNC_VALUE;
-    };
+    };*/
 
   lvalue = lvalue_in;
   gvalue = lvalue_in;
 
   shmem_barrier_all();
-  shmem_longdouble_max_to_all( &gvalue, &lvalue, nreduce, 
-                          PE_start, logPE_stride, PE_size, 
-                          pWrk, pSync );
+  shmem_longdouble_max_reduce(SHMEM_TEAM_WORLD, &gvalue, &lvalue,
+          nreduce);
+//  shmem_longdouble_max_to_all( &gvalue, &lvalue, nreduce, 
+//                          PE_start, logPE_stride, PE_size, 
+ //                         pWrk, pSync );
   shmem_barrier_all();
 
   assert( gvalue >= lvalue );
@@ -412,31 +411,29 @@ long shmem_long_min_all( long lvalue_in )
   static long gvalue = 0;
   static long lvalue = 0;
 
-  int i = 0;
-  int PE_start = 0;
-  int logPE_stride = 0;
-  int PE_size = shmem_n_pes();
+  //  int PE_start = 0;
+//  int logPE_stride = 0;
+//  int PE_size = shmem_n_pes();
   const int nreduce = 1;
-  static long pWrk[2 + 1 + _SHMEM_REDUCE_MIN_WRKDATA_SIZE];
-  const int len_pWrk = sizeof(pWrk)/sizeof(long);
+//  static long pWrk[2 + 1 + _SHMEM_REDUCE_MIN_WRKDATA_SIZE];
+//  const int len_pWrk = sizeof(pWrk)/sizeof(long);
 
-  static long pSync[_SHMEM_REDUCE_SYNC_SIZE];
-  const int len_pSync = sizeof(pSync)/sizeof(long);
+//  static long pSync[_SHMEM_REDUCE_SYNC_SIZE];
+//  const int len_pSync = sizeof(pSync)/sizeof(long);
 
-  for(i=0; i < len_pWrk; i++) {
+/*  for(i=0; i < len_pWrk; i++) {
      pWrk[i] =  0;
      };
 
   for(i=0; i < len_pSync; i++) {
      pSync[i] = _SHMEM_SYNC_VALUE;
     };
+    */
 
   lvalue = lvalue_in;
 
   shmem_barrier_all();
-  shmem_long_min_to_all( &gvalue, &lvalue, nreduce, 
-                          PE_start, logPE_stride, PE_size, 
-                          pWrk, pSync );
+  shmem_long_min_reduce( SHMEM_TEAM_WORLD, &gvalue, &lvalue, nreduce);
   shmem_barrier_all();
 
   assert( gvalue <= lvalue );
@@ -457,31 +454,12 @@ long shmem_long_or_all( long lvalue_in )
   static long gvalue = 0;
   static long lvalue = 0;
 
-  int i = 0;
-  int PE_start = 0;
-  int logPE_stride = 0;
-  int PE_size = shmem_n_pes();
-  const int nreduce = 1;
-  static long pWrk[2 + 1 + _SHMEM_REDUCE_MIN_WRKDATA_SIZE];
-  const int len_pWrk = sizeof(pWrk)/sizeof(long);
-
-  static long pSync[_SHMEM_REDUCE_SYNC_SIZE];
-  const int len_pSync = sizeof(pSync)/sizeof(long);
-
-  for(i=0; i < len_pWrk; i++) {
-     pWrk[i] =  0;
-     };
-
-  for(i=0; i < len_pSync; i++) {
-     pSync[i] = _SHMEM_SYNC_VALUE;
-    };
-
+     const int nreduce = 1;
+ 
 
   lvalue = lvalue_in;
   shmem_barrier_all();
-  shmem_long_or_to_all( &gvalue, &lvalue, nreduce, 
-                          PE_start, logPE_stride, PE_size, 
-                          pWrk, pSync );
+  shmem_ulong_or_reduce(SHMEM_TEAM_WORLD, &gvalue, &lvalue, nreduce);
   shmem_barrier_all();
 
   return( gvalue );
@@ -500,34 +478,15 @@ long shmem_long_and_all( long lvalue_in )
   static long gvalue = 0;
   static long lvalue = 0;
 
-  int i = 0;
-  int PE_start = 0;
-  int logPE_stride = 0;
-  int PE_size = shmem_n_pes();
-  const int nreduce = 1;
-  static long pWrk[2 + 1 + _SHMEM_REDUCE_MIN_WRKDATA_SIZE];
-  const int len_pWrk = sizeof(pWrk)/sizeof(long);
-
-  static long pSync[_SHMEM_REDUCE_SYNC_SIZE];
-  const int len_pSync = sizeof(pSync)/sizeof(long);
-
-  for(i=0; i < len_pWrk; i++) {
-     pWrk[i] =  0;
-     };
-
-  for(i=0; i < len_pSync; i++) {
-     pSync[i] = _SHMEM_SYNC_VALUE;
-    };
-#ifndef NDEBUG
+    const int nreduce = 1;
+ #ifndef NDEBUG
     shmem_barrier_all();
 #endif
 
   lvalue = lvalue_in;
 
   shmem_barrier_all();
-  shmem_long_and_to_all( &gvalue, &lvalue, nreduce, 
-                          PE_start, logPE_stride, PE_size, 
-                          pWrk, pSync );
+  shmem_ulong_and_reduce( SHMEM_TEAM_WORLD, &gvalue, &lvalue, nreduce);
   shmem_barrier_all();
 
   return( gvalue );
@@ -567,38 +526,19 @@ int shmem_int_or_all( int lvalue )
     static int out_global_var = 0;
     static int in_global_var = 0;
 
-    static long pSync[ _SHMEM_REDUCE_SYNC_SIZE];
-    static int pWrk[ 4 + _SHMEM_REDUCE_MIN_WRKDATA_SIZE ];
-    const int len_pWrk = sizeof(pWrk)/sizeof(int);
-    const int len_pSync = sizeof(pSync)/sizeof(long);
 
     int any_set = lvalue;
 
     int *target = &out_global_var;
     int *source = &in_global_var;
-    int pe_start = 0;
     int nreduce = 1;
-    int logpe_stride = 0;
-    int pe_size = shmem_n_pes();
-
-
-    int i = 0;
-
+  
     out_global_var = any_set;
     in_global_var = any_set;
 
-    for(i=0; i < len_pSync; i++) {
-       pSync[i] = _SHMEM_SYNC_VALUE;
-       };
-
-    for(i=0; i < len_pWrk;i++) {
-       pWrk[i] = 0;
-       };
 
     shmem_barrier_all();
-    shmem_int_or_to_all(  target,  source, nreduce,
-                  pe_start, logpe_stride, pe_size,
-                  pWrk, pSync );
+    shmem_uint_or_reduce(SHMEM_TEAM_WORLD,  target,  source, nreduce);
     shmem_barrier_all();
 
 #ifdef USE_DEBUG2
@@ -647,38 +587,20 @@ int shmem_int_and_all( int lvalue )
     static int out_global_var = 0;
     static int in_global_var = 0;
 
-    static long pSync[ _SHMEM_REDUCE_SYNC_SIZE ];
-    static int pWrk[ 4 + _SHMEM_REDUCE_MIN_WRKDATA_SIZE ];
-    const int len_pWrk = sizeof(pWrk)/sizeof(int);
-    const int len_pSync = sizeof(pSync)/sizeof(long);
-
+ 
     int any_set = lvalue;
 
     int *target = &out_global_var;
     int *source = &in_global_var;
-    int pe_start = 0;
     int nreduce = 1;
-    int logpe_stride = 0;
-    int pe_size = shmem_n_pes();
 
 
-    int i = 0;
-
+    
     out_global_var = any_set;
     in_global_var = any_set;
 
-    for(i=0; i < len_pSync; i++) {
-       pSync[i] = _SHMEM_SYNC_VALUE;
-       };
-
-    for(i=0; i < len_pWrk;i++) {
-       pWrk[i] = 0;
-       };
-
     shmem_barrier_all();
-    shmem_int_and_to_all(  target,  source, nreduce,
-                  pe_start, logpe_stride, pe_size,
-                  pWrk, pSync );
+    shmem_uint_and_reduce(SHMEM_TEAM_WORLD,  target,  source, nreduce);
     shmem_barrier_all();
 
     return(  *target );
