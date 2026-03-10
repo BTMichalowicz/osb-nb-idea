@@ -24,6 +24,7 @@ extern int rank, size;
 #ifdef SIZE_MUST_BE_A_POWER_OF_TWO
 extern int lgsize;
 #endif
+extern int encrypt;
 
 #ifdef USE_OPENSHMEM
   #include <unistd.h>

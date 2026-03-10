@@ -29,6 +29,7 @@ int rank, size;
 #ifdef SIZE_MUST_BE_A_POWER_OF_TWO
 int lgsize;
 #endif
+int encrypt;
 
 
 #ifdef USE_OPENSHMEM
@@ -47,12 +48,16 @@ void setup_globals() {
   MPI_Comm_size(MPI_COMM_WORLD, &size);
 #endif
 
+  char * enc = getenv("SHMEM_ENABLE_ENCRYPTION");
+
+  encrypt = enc == NULL ? 0 : !!atoi(enc);
+
 #ifdef SIZE_MUST_BE_A_POWER_OF_TWO
   if (/* Check for power of 2 */ (size & (size - 1)) != 0) {
     fprintf(stderr, "Number of processes %d is not a power of two, yet SIZE_MUST_BE_A_POWER_OF_TWO is defined in main.cpp.\n", size);
 
 #ifdef USE_OPENSHMEM
-   exit(1);
+   shmem_global_exit(1);
 #else
     MPI_Abort(MPI_COMM_WORLD, 1);
 #endif

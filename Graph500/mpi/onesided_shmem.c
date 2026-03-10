@@ -308,7 +308,12 @@ void add_scatter_constant_request(scatter_constant* sc, int remote_rank, size_t 
   assert( shmem_addr_accessible( dest, pe ) );
 #endif
 
-  shmem_putmem( (void *) dest, (void *) src, len * sc->elt_size, pe );
+
+  if (!encrypt){
+      shmem_putmem( (void *) dest, (void *) src, len * sc->elt_size, pe );
+  }else{
+      shmemx_secure_put(SHMEM_CTX_DEFAULT, (void*)dest, (void*)src, len * sc->elt_size, pe);
+  }
 
 #ifdef USE_DEBUG
   shmem_quiet();
@@ -456,7 +461,15 @@ void add_scatter_request(scatter* sc, const char* local_data, int remote_rank, s
   assert( sc->elt_size > 0);
 #endif
 
-  shmem_putmem( (void *) dest, (void *) src, len * sc->elt_size, pe );
+  
+  if (!encrypt){
+      shmem_putmem( (void *) dest, (void *) src, len * sc->elt_size, pe );
+  }else{
+      shmemx_secure_put(SHMEM_CTX_DEFAULT, (void*)dest, src, len * sc->elt_size, pe);
+  }
+
+
+
 #ifdef USE_OPENSHMEM
   shmem_quiet();
 #endif
