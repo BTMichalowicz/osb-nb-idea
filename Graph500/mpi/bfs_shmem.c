@@ -52,7 +52,7 @@ static oned_csr_graph g;
     
 
 void make_graph_data_structure(const tuple_graph* const tg) {
-  fprintf(stderr, "Converting to one-d-csr graph %p, oned_csr_graph g\n", tg); 
+//  fprintf(stderr, "Converting to one-d-csr graph %p, oned_csr_graph g\n", tg); 
   convert_graph_to_oned_csr(tg, &g);
 #ifdef USE_DEBUG
   print_oned_csr_graph("shmem_graph.txt",&g);

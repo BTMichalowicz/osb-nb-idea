@@ -192,7 +192,7 @@ int main(int argc, char** argv) {
 #ifdef USE_DEBUG3
   int num_bfs_roots = 1; 
 #else
-  int num_bfs_roots = 64; 
+  int num_bfs_roots = 32; 
 #endif
 
   /* 

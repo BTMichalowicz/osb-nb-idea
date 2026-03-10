@@ -635,7 +635,26 @@ void wrap_shmem_int_alltoall( int *sendbuf, int *recvbuf )
 
 
   size_t len = 1;
-  shmem_int_alltoall(SHMEM_TEAM_WORLD, recvbuf, sendbuf, len);
+  int *source = shmem_malloc(len*shmem_n_pes()*sizeof(int));
+  int *dest = shmem_malloc(len*shmem_n_pes()*sizeof(int));
+
+#ifdef USE_DEBUG2
+  if (shmem_my_pe() == 0){
+      fprintf(stderr, "in wrapper int alltoall\n");
+  }
+#endif
+  int i = 0;
+  for (i = 0; i < shmem_n_pes(); i++){
+      source[i] = sendbuf[i];
+  }
+   shmem_int_alltoall(SHMEM_TEAM_WORLD, dest, source, len);
+
+  for (i = 0; i < shmem_n_pes(); i++){
+      recvbuf[i] = dest[i];
+  }
+
+  shmem_free(source);
+  shmem_free(dest);
   /*
   int *source = 0;
   int *target = 0;
