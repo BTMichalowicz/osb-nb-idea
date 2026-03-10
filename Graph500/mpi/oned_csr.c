@@ -223,7 +223,10 @@ static MAKE_REDISTRIBUTE_FUNC(CONV1D_FUNCNAME, CONV1D_EXTRA_PARAMS, CONV1D_DECLA
 void convert_graph_to_oned_csr(const tuple_graph* const tg, oned_csr_graph* const g) { \
   g->tg = tg;
   g->nlocaledges = 0;
+  fprintf(stderr, "Entering the helper function with tuple graph %p, csr graph %p\n",
+          tg, g);
   convert_graph_to_oned_csr_helper(tg, g);
+  fprintf(stderr, "Finished helper\n");
 }
 
 void free_oned_csr_graph(oned_csr_graph* const g) {

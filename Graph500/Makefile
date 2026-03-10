@@ -4,7 +4,7 @@
 BUILD_OPENMP = No
 BUILD_XMT = No
 include make.inc
-
+BUILD_OPENSHMEM = Yes
 GRAPH500_SOURCES=graph500.c options.c rmat.c kronecker.c verify.c prng.c \
 	xalloc.c timer.c 
 
@@ -65,7 +65,7 @@ make-edgelist-shmem:	make-edgelist-shmem.c options.c rmat.c kronecker.c prng.c \
 	generator/utils.c \
 	mpi/shmem_lib.c 
 
-make-edgelist: CFLAGS:=$(CFLAGS) $(CFLAGS_OPENMP)
+make-edgelist: CFLAGS:=$(CFLAGS) $(CFLAGS_OPENMP) -DUSE_OPENSHMEM
 make-edgelist:	make-edgelist.c options.c rmat.c kronecker.c prng.c \
 	xalloc.c timer.c $(addprefix generator/,$(GENERATOR_SRCS))
 

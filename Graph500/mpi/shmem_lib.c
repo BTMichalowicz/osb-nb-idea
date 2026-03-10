@@ -266,32 +266,33 @@ long shmem_long_sum_all( long lvalue_in )
   static long lvalue = 0;
 
   int i = 0;
-  int PE_start = 0;
-  int logPE_stride = 0;
-  int PE_size = shmem_n_pes();
+//  int PE_start = 0;
+//  int logPE_stride = 0;
+//  int PE_size = shmem_n_pes();
   const int nreduce = 1;
-  static long pWrk[2 + 1 + _SHMEM_REDUCE_MIN_WRKDATA_SIZE];
-  const int len_pWrk = sizeof(pWrk)/sizeof(long);
+//  static long pWrk[2 + 1 + _SHMEM_REDUCE_MIN_WRKDATA_SIZE];
+//  const int len_pWrk = sizeof(pWrk)/sizeof(long);
 
-  static long pSync[_SHMEM_REDUCE_SYNC_SIZE];
-  const int len_pSync = sizeof(pSync)/sizeof(long);
+//  static long pSync[_SHMEM_REDUCE_SYNC_SIZE];
+//  const int len_pSync = sizeof(pSync)/sizeof(long);
 
 
-  for(i=0; i < len_pWrk; i++) {
-     pWrk[i] =  0;
-     };
+//  for(i=0; i < len_pWrk; i++) {
+//     pWrk[i] =  0;
+//     };
 
-  for(i=0; i < len_pSync; i++) {
-     pSync[i] = _SHMEM_SYNC_VALUE;
-    };
+ // for(i=0; i < len_pSync; i++) {
+ //    pSync[i] = _SHMEM_SYNC_VALUE;
+ //   };
 
   lvalue = lvalue_in;
   gvalue = lvalue_in;
 
   shmem_barrier_all();
-  shmem_long_sum_to_all( &gvalue, &lvalue, nreduce, 
-                          PE_start, logPE_stride, PE_size, 
-                          pWrk, pSync );
+  shmem_long_sum_reduce(SHMEM_TEAM_WORLD, &gvalue, &lvalue, nreduce);
+  //, 
+  //                        PE_start, logPE_stride, PE_size, 
+  //                        pWrk, pSync );
   shmem_barrier_all();
 
 #ifdef USE_DEBUG
@@ -317,31 +318,31 @@ long shmem_long_max_all( long lvalue_in )
   static long lvalue = 0;
 
   int i = 0;
-  int PE_start = 0;
-  int logPE_stride = 0;
-  int PE_size = shmem_n_pes();
+//  int PE_start = 0;
+//  int logPE_stride = 0;
+//  int PE_size = shmem_n_pes();
   const int nreduce = 1;
-  static long pWrk[2 + 1 + _SHMEM_REDUCE_MIN_WRKDATA_SIZE];
-  const int len_pWrk = sizeof(pWrk)/sizeof(long);
+//  static long pWrk[2 + 1 + _SHMEM_REDUCE_MIN_WRKDATA_SIZE];
+//  const int len_pWrk = sizeof(pWrk)/sizeof(long);
 
-  static long pSync[_SHMEM_REDUCE_SYNC_SIZE];
-  const int len_pSync = sizeof(pSync)/sizeof(long);
+//  static long pSync[_SHMEM_REDUCE_SYNC_SIZE];
+//  const int len_pSync = sizeof(pSync)/sizeof(long);
 
-  for(i=0; i < len_pWrk; i++) {
-     pWrk[i] =  0;
-     };
+//  for(i=0; i < len_pWrk; i++) {
+//     pWrk[i] =  0;
+//     };
 
-  for(i=0; i < len_pSync; i++) {
-     pSync[i] = _SHMEM_SYNC_VALUE;
-    };
+//  for(i=0; i < len_pSync; i++) {
+//     pSync[i] = _SHMEM_SYNC_VALUE;
+//    };
 
   lvalue = lvalue_in;
   gvalue = lvalue_in;
 
   shmem_barrier_all();
-  shmem_long_max_to_all( &gvalue, &lvalue, nreduce, 
-                          PE_start, logPE_stride, PE_size, 
-                          pWrk, pSync );
+  shmem_long_max_reduce(SHMEM_TEAM_WORLD, &gvalue, &lvalue, nreduce);
+                      //    PE_start, logPE_stride, PE_size, 
+                      //    pWrk, pSync );
   shmem_barrier_all();
 #ifdef USE_DEBUG2
     fprintf(stderr,"shmem_long_max_all: rank %d before %ld after %ld\n",

@@ -18,6 +18,8 @@
 #define __STDC_FORMAT_MACROS
 #endif
 
+
+#define _BSD_SOURCE
 #include "../generator/make_graph.h"
 #include "../generator/utils.h"
 #include "common.h"
@@ -112,7 +114,7 @@ static void get_statistics(const double x[], int n, double r[s_LAST]) {
 
 int main(int argc, char** argv) {
 #ifdef USE_OPENSHMEM
-  start_pes(0);
+  shmem_init(); //start_pes(0);
 
 #else
   MPI_Init(&argc, &argv);

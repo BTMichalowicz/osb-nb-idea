@@ -455,9 +455,18 @@ int main(int argc, char** argv) {
 
   /* Make user's graph data structure. */
   BARRIER();
+
+  if (rank == 0) { /* Not an official part of the results */
+    fprintf(stderr, "Starting to make the graph structure\n");
+  }
   double data_struct_start = WTIME();
   make_graph_data_structure(&tg);
+
+  if (rank == 0) { /* Not an official part of the results */
+    fprintf(stderr, "Done, entering Barrier\n");
+  }
   BARRIER();
+
   double data_struct_stop = WTIME();
   double data_struct_time = data_struct_stop - data_struct_start;
   if (rank == 0) { /* Not an official part of the results */
@@ -466,6 +475,10 @@ int main(int argc, char** argv) {
 
   /* Number of edges visited in each BFS; a double so get_statistics can be
    * used directly. */
+  if (rank == 0) { /* Not an official part of the results */
+    fprintf(stderr, "num_bfs_roots %d\n", num_bfs_roots);
+  }
+
   double* edge_counts = (double*)xmalloc( ( (size_t) num_bfs_roots) * sizeof(double));
 
   /* Run BFS. */

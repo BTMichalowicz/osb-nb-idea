@@ -11,7 +11,7 @@ int
 main( int argc, char *argv[]) 
 {
 
-  start_pes(0);
+  shmem_init();
   int n_pes = shmem_n_pes();
   int my_pe = shmem_my_pe();
 

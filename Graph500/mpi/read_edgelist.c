@@ -18,11 +18,11 @@ void long_bcast_all( long *ldest, long *lsrc )
   const int n_pes = shmem_n_pes();
 
   const size_t nlong = 1;
-  const int PE_root = 0;
-  const int PE_start = 0;
-  const int logPE_stride = 0;
-  const int PE_size = n_pes;
-  static long pSync[ _SHMEM_BCAST_SYNC_SIZE ];
+//  const int PE_root = 0;
+//  const int PE_start = 0;
+//  const int logPE_stride = 0;
+//  const int PE_size = n_pes;
+//  static long pSync[ _SHMEM_BCAST_SYNC_SIZE ];
 
   static long src = 0;
   static long dest = 0;
@@ -41,17 +41,19 @@ void long_bcast_all( long *ldest, long *lsrc )
   else {
 
   int i;
-  for(i=0; i <  _SHMEM_BCAST_SYNC_SIZE; i++) {
-      pSync[i] = _SHMEM_SYNC_VALUE;
-      };
-  shmem_barrier_all();
+//  for(i=0; i <  _SHMEM_BCAST_SYNC_SIZE; i++) {
+//      pSync[i] = _SHMEM_SYNC_VALUE;
+//      };
+//  shmem_barrier_all();
 
 
 
   src = *lsrc;
   dest = src;
-  shmem_broadcast64( &dest, &src, nlong, 
-        PE_root, PE_start, logPE_stride, PE_size, pSync );
+
+  shmem_long_broadcast(SHMEM_TEAM_WORLD, &dest, &src, nlong, 0);
+//  shmem_broadcast64( &dest, &src, nlong, 
+//        PE_root, PE_start, logPE_stride, PE_size, pSync );
   /*
    * -------------------------------------------------------------
    * note dest/target in PE_root may  not be modified in broadcast
